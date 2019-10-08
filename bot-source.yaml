@@ -1,0 +1,28 @@
+apiVersion: sources.eventing.knative.dev/v1alpha1
+kind: CamelSource
+metadata:
+  name: bot-source
+spec:
+  source:
+    flow: |
+      from:
+        uri: telegram:bots
+        parameters:
+          authorizationToken: 724410022:AAEcSzXEqJ0NRzKM1fOy3PmraAzyd6oUvyI
+        steps:
+          - transform:
+              simple: "${body.text}"
+          - set-header:
+              name: ce-type
+              constant: telegram.bot
+          - set-header:
+              name: Content-Type
+              constant: text/plain
+  # sink:
+  #   apiVersion: eventing.knative.dev/v1alpha1
+  #   kind: Broker
+  #   name: default
+  sink:
+    apiVersion: serving.knative.dev/v1beta1
+    kind: Service
+    name: quarkus
