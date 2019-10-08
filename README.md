@@ -115,7 +115,7 @@ default   True             default-broker.default.svc.cluster.local   102s
 
 A broker named "default" has been installed in the current namespace and it's ready to be used.
 
-### 4. Target sources to the broker
+### 4. Target Chuck source to the broker
 
 You can now change the sink of the chuck-source to target the default broker:
 
@@ -125,4 +125,50 @@ kubectl apply -f chuck-source.yaml
 ```
 
 
-To be continued...
+### 5. Deploy the Bot source
+
+Another source available is container in the `bot-source.yaml` file which relays messages from a Telegram bot.
+
+Refer to the [Telegram Bot Father](https://telegram.me/BotFather) for how to create such bot and get the authorization token.
+
+You should edit the `bot-source.yaml` file to set the authorization token for your own bot.
+
+Once done, deploy it through:
+
+```
+kubectl apply -f bot-source.yaml
+```
+
+### 6. Play with triggers
+
+You can create some triggers to see how the service gets called.
+
+```
+kubectl apply -f trigger-bot.yaml
+kubectl apply -f trigger-chuck.yaml
+```
+
+You can also delete them and recreate, or also change the filter of the bot trigger to filter
+only messages from a particular author.
+
+### 7. Bonus: reply to the chat
+
+We're going to create a Camel K "exporter" that will reply back to the Telegram chat with an echo message.
+
+Exporters are not part of Knative, but they can easily be created with Camel K.
+
+Edit the `echo.groovy` file to include your Telegram authorization token, then:
+
+```
+kamel run echo.groovy
+```
+
+This will create a knative service named "echo".
+
+To connect the service to the event mesh, we can create a trigger:
+
+```
+kubectl apply -f trigger-bot-echo.yaml
+```
+
+Now each message that you send to the bot will get a reply from a serverless service.
